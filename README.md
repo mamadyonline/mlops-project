@@ -12,7 +12,7 @@ Cardiovascular diseases are one of the leading causes of death globally, account
 The pipeline automates the entire ML lifecycle : from data collection and preprocessing to model training, evaluation, and deployment, while ensuring reproducibility, scalability, and monitoring. By leveraging MLOps best practices, the project demonstrates how to operationalize a machine learning model in a real-world healthcare scenario.
 
 ### Dataset
-We will use the [UCI heart disease dataset](https://archive.ics.uci.edu/dataset/45/heart+disease). It contains 13 main features (numerical + categorical) plus the target (a binary value indicating risk or no). For a complete description of the dataset, please refer to the *UCI* website.
+We will use the [UCI heart disease dataset](https://archive.ics.uci.edu/dataset/45/heart+disease). The dataset version I am using is from this [kaggle link](https://www.kaggle.com/datasets/johnsmith88/heart-disease-dataset?resource=download&select=heart.csv). It contains 13 main features (numerical + categorical) plus the target (a binary value indicating risk or no). For a complete description of the dataset, please refer to the *UCI* website.
 
 ### Stack
 * uv for dependency management
