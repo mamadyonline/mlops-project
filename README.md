@@ -20,3 +20,5 @@ We will use the [UCI heart disease dataset](https://archive.ics.uci.edu/dataset/
 * mlflow for model tracking
 * apache airflow for model orchestration
 * evidently for model monitoring
+* ruff for code formatting and linting
+* pytest for unit testing
