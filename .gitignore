@@ -214,3 +214,6 @@ __marimo__/
 airflow/logs
 airflow/airflow.*
 airflow/simple_auth_manager_passwords.json*
+
+# mlflow
+mlruns/
