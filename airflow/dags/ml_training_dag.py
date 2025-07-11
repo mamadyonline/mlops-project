@@ -142,7 +142,7 @@ def train_and_log_model(project_root_path):
         import mlflow
 
         from src.model import train_model
-        from src.s3_utils import download_file_from_s3
+        from src.s3_utils import download_file_from_s3, upload_file_to_s3
 
         print("✓ Local imports successful")
         # Use temporary files
@@ -151,6 +151,9 @@ def train_and_log_model(project_root_path):
 
         with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as params_tmp:
             params_path = params_tmp.name
+        
+        with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as model_tmp:
+            model_path = model_tmp.name
 
         try:
             # Download artifacts from S3
@@ -186,7 +189,16 @@ def train_and_log_model(project_root_path):
             mlflow.set_experiment("heart-disease-experiment")
 
             # Train model
-            train_model(X_train, X_test, y_train, y_test, best_params)
+            trained_model = train_model(X_train, X_test, y_train, y_test, best_params)
+
+            # Save model
+            joblib.dump(trained_model, model_path)
+            # Upload model to S3
+            upload_file_to_s3(
+                local_path=model_path,
+                bucket="mlflow-project-artifacts-remote",
+                key="pipeline_artifacts/trained_model.pkl",
+            )
 
             print("Model training and logging completed successfully")
             return "success"
