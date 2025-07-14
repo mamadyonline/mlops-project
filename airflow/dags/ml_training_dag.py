@@ -227,7 +227,7 @@ default_args = {
 with DAG(
     "heart_disease_ml_training_pipeline",
     default_args=default_args,
-    schedule=None,  # "@daily",  # run manually or set a schedule
+    schedule="@daily",  # Run manually or set schedule (e.g., "@daily")
     catchup=False,
     tags=["machine-learning", "s3", "mlops"],
     description="ML training pipeline for heart disease risk prediction",

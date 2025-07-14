@@ -372,19 +372,6 @@ def monitor_model_task(project_root_path):
             train_df = pd.concat([X_train, y_train], axis=1)
             test_df = pd.concat([X_test, y_test], axis=1)
 
-            # Define data definition (target column)
-            # target_column = y_train.name if hasattr(y_train, "name") else "target"
-            # data_definition = DataDefinition(
-            #     target=target_column,
-            #     prediction=None,  # We're not evaluating predictions here, just data drift
-            # )
-
-            # Create Evidently datasets
-            # reference_dataset = Dataset(train_df)#, data_definition=data_definition)
-            # current_dataset = Dataset(test_df)#, data_definition=data_definition)
-
-            # Create monitoring report
-            # Create monitoring report
             report = Report(
                 metrics=[
                     DuplicatedRowCount(),
@@ -397,7 +384,6 @@ def monitor_model_task(project_root_path):
             report_snapshot = report.run(reference_data=train_df, current_data=test_df)
 
             # Save report to temporary file
-            # Get report metrics as dictionary for logging
             report_dict = report_snapshot.dict()
             with tempfile.NamedTemporaryFile(
                 mode="w", suffix=".pkl", delete=False
@@ -462,7 +448,7 @@ default_args = {
 with DAG(
     "heart_disease_batch_deployment",
     default_args=default_args,
-    schedule=None,  # Run manually or set schedule (e.g., "@daily")
+    schedule="@daily",  # Run manually or set schedule (e.g., "@daily")
     catchup=False,
     tags=["machine-learning", "deployment", "batch", "mlops"],
     description="Batch deployment pipeline for heart disease risk prediction model",
