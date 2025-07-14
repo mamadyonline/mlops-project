@@ -311,6 +311,146 @@ def calculate_performance_metrics(project_root_path):
         raise
 
 
+def monitor_model_task(project_root_path):
+    """Monitor model with Evidently"""
+    try:
+        import tempfile
+        from datetime import datetime
+
+        import joblib
+        import pandas as pd
+
+        sys.path.append(project_root_path)
+        from src.airflow_utils import add_project_root_to_path
+
+        project_root = add_project_root_to_path()
+        # Add to Python path
+        if str(project_root) not in sys.path:
+            sys.path.insert(0, str(project_root))
+
+        import mlflow
+        from evidently import Report
+        from evidently.metrics import (
+            DatasetMissingValueCount,
+            DriftedColumnsCount,
+            DuplicatedRowCount,
+        )
+
+        from src.s3_utils import download_file_from_s3, upload_file_to_s3
+
+        print("✓ Local imports successful")
+
+        # Set up MLflow
+        aws_profile = os.getenv("MY_AWS_PROFILE")
+        if aws_profile:
+            os.environ["AWS_PROFILE"] = aws_profile
+        tracking_uri = os.getenv("MY_AWS_EC2_SERVER")
+        if tracking_uri:
+            mlflow.set_tracking_uri(f"http://{tracking_uri}:5000")
+        mlflow.set_experiment("heart-disease-experiment")
+
+        try:
+            # Download data from S3
+            with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as data_tmp:
+                data_path = data_tmp.name
+            download_file_from_s3(
+                bucket="mlflow-project-artifacts-remote",
+                key="pipeline_artifacts/data.pkl",
+                local_path=data_path,
+            )
+            X_train, X_val, X_test, y_train, y_val, y_test = joblib.load(data_path)
+
+            # Get latest model deployed
+            with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as model_tmp:
+                model_path = model_tmp.name
+            download_file_from_s3(
+                bucket="mlflow-project-artifacts-remote",
+                key="deployment_artifacts/model.pkl",
+                local_path=model_path,
+            )
+
+            train_df = pd.concat([X_train, y_train], axis=1)
+            test_df = pd.concat([X_test, y_test], axis=1)
+
+            # Define data definition (target column)
+            # target_column = y_train.name if hasattr(y_train, "name") else "target"
+            # data_definition = DataDefinition(
+            #     target=target_column,
+            #     prediction=None,  # We're not evaluating predictions here, just data drift
+            # )
+
+            # Create Evidently datasets
+            # reference_dataset = Dataset(train_df)#, data_definition=data_definition)
+            # current_dataset = Dataset(test_df)#, data_definition=data_definition)
+
+            # Create monitoring report
+            # Create monitoring report
+            report = Report(
+                metrics=[
+                    DuplicatedRowCount(),
+                    DriftedColumnsCount(),
+                    DatasetMissingValueCount(),
+                ]
+            )
+
+            # Run the report
+            report_snapshot = report.run(reference_data=train_df, current_data=test_df)
+
+            # Save report to temporary file
+            # Get report metrics as dictionary for logging
+            report_dict = report_snapshot.dict()
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".pkl", delete=False
+            ) as report_tmp:
+                report_path = report_tmp.name
+            joblib.dump(report_dict, report_path)
+
+            # Upload report to S3
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            s3_key = f"monitoring_reports/evidently_report_{timestamp}.pkl"
+            upload_file_to_s3(
+                local_path=report_path,
+                bucket="mlflow-project-artifacts-remote",
+                key=s3_key,
+            )
+
+            # Log basic metrics
+            print("=== MONITORING REPORT ===")
+            print(f"Report saved to S3: {s3_key}")
+
+            # Extract some key metrics
+            drift_metrics = report_dict.get("metrics", [])
+            for metric in drift_metrics:
+                if metric.get("metric") == "DriftedColumnsCount":
+                    drifted_count = metric.get("result", {}).get(
+                        "number_of_drifted_columns", 0
+                    )
+                    total_count = metric.get("result", {}).get("number_of_columns", 0)
+                    print(f"Drifted columns: {drifted_count}/{total_count}")
+                elif metric.get("metric") == "DatasetMissingValueCount":
+                    missing_info = metric.get("result", {})
+                    print(
+                        f"Missing values - Reference: {missing_info.get('reference', {})}"
+                    )
+                    print(
+                        f"Missing values - Current: {missing_info.get('current', {})}"
+                    )
+
+            print("Model monitoring completed successfully")
+            return "success"
+
+        finally:
+            # Clean up temporary files
+            if os.path.exists(data_path):
+                os.unlink(data_path)
+            if "report_path" in locals() and os.path.exists(report_path):
+                os.unlink(report_path)
+
+    except Exception as e:
+        print(f"Error in monitor_model_task: {str(e)}")
+        raise
+
+
 # Define DAG
 default_args = {
     "owner": "mamady",
@@ -348,5 +488,12 @@ with DAG(
         python=sys.executable,
     )
 
+    monitor = ExternalPythonOperator(
+        task_id="monitor_model",
+        python_callable=monitor_model_task,
+        op_args=[str(PROJECT_ROOT)],
+        python=sys.executable,
+    )
+
     # Define task dependencies
-    load_model_data >> predict >> metrics
+    load_model_data >> predict >> metrics >> monitor
