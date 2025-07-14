@@ -1,4 +1,3 @@
-# app.py - FastAPI application for model serving
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import joblib
@@ -35,7 +34,7 @@ def load_model_from_s3():
         # Initialize S3 client
         s3_client = boto3.client('s3')
         
-        # Download model from S3
+        # Download deployed model from S3
         with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as tmp_file:
             s3_client.download_file(
                 'mlflow-project-artifacts-remote',
@@ -43,10 +42,7 @@ def load_model_from_s3():
                 tmp_file.name
             )
             
-            # Load model
             model = joblib.load(tmp_file.name)
-            
-            # Clean up
             os.unlink(tmp_file.name)
             
         return model
@@ -54,7 +50,6 @@ def load_model_from_s3():
         print(f"Error loading model from S3: {e}")
         raise
 
-# Create FastAPI app
 app = FastAPI(
     title="Heart Disease Prediction API",
     description="API for predicting heart disease risk",
@@ -64,6 +59,9 @@ app = FastAPI(
 
 # Pydantic models for request/response
 class PredictionInput(BaseModel):
+    # this could be improved with 
+    # more data validation. for example, 
+    # check for valid intervals
     age: float
     sex: float
     cp: float
@@ -130,10 +128,8 @@ async def predict(input_data: PredictionInput):
         raise HTTPException(status_code=503, detail="Model not loaded")
     
     try:
-        # Convert input to DataFrame
         input_df = pd.DataFrame([input_data.model_dump()])
         
-        # Make prediction
         prediction = model.predict(input_df)[0]
         probability = model.predict_proba(input_df)[0][1]  # Probability of positive class
         
@@ -165,17 +161,13 @@ async def predict_batch(input_data: BatchPredictionInput):
         raise HTTPException(status_code=503, detail="Model not loaded")
     
     try:
-        # Convert input to DataFrame
         input_df = pd.DataFrame([item.dict() for item in input_data.data])
         
-        # Make predictions
         predictions = model.predict(input_df)
         probabilities = model.predict_proba(input_df)[:, 1]  # Probability of positive class
         
-        # Create response
         results = []
         for pred, prob in zip(predictions, probabilities):
-            # Determine risk level
             if prob < 0.3:
                 risk_level = "Low"
             elif prob < 0.7:
