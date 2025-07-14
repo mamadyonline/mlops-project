@@ -32,7 +32,7 @@ def load_and_split_data(project_root_path):
         from src.preprocessing import get_splits, read_dataframe
         from src.s3_utils import upload_file_to_s3
 
-        print("✓ Local imports successful")
+        print("Local imports successful")
 
         filename = "data/heart.csv"
         df = read_dataframe(filename)
@@ -78,7 +78,7 @@ def optimize_model_task(project_root_path):
         from src.model import optimize_model
         from src.s3_utils import download_file_from_s3, upload_file_to_s3
 
-        print("✓ Local imports successful")
+        print("Local imports successful")
         # Use temporary files
         with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as data_tmp:
             data_path = data_tmp.name
@@ -144,14 +144,14 @@ def train_and_log_model(project_root_path):
         from src.model import train_model
         from src.s3_utils import download_file_from_s3, upload_file_to_s3
 
-        print("✓ Local imports successful")
+        print("Local imports successful")
         # Use temporary files
         with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as data_tmp:
             data_path = data_tmp.name
 
         with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as params_tmp:
             params_path = params_tmp.name
-        
+
         with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as model_tmp:
             model_path = model_tmp.name
 
@@ -227,7 +227,7 @@ default_args = {
 with DAG(
     "heart_disease_ml_training_pipeline",
     default_args=default_args,
-    schedule=None,  # "@daily",  # run manually or set your schedule
+    schedule=None,  # "@daily",  # run manually or set a schedule
     catchup=False,
     tags=["machine-learning", "s3", "mlops"],
     description="ML training pipeline for heart disease risk prediction",
