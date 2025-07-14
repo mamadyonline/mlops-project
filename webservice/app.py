@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import joblib
 import numpy as np
 import pandas as pd
@@ -59,49 +59,28 @@ app = FastAPI(
 
 # Pydantic models for request/response
 class PredictionInput(BaseModel):
-    # this could be improved with 
-    # more data validation. for example, 
-    # check for valid intervals
-    age: float
-    sex: float
-    cp: float
-    trestbps: float
-    chol: float
-    fbs: float
-    restecg: float
-    thalach: float
-    exang: float
-    oldpeak: float
-    slope: float
-    ca: float
-    thal: float
-    
-    class Config:
-        schema_extra = {
-            "example": {
-                "age": 63,
-                "sex": 1,
-                "cp": 3,
-                "trestbps": 145,
-                "chol": 233,
-                "fbs": 1,
-                "restecg": 0,
-                "thalach": 150,
-                "exang": 0,
-                "oldpeak": 2.3,
-                "slope": 0,
-                "ca": 0,
-                "thal": 1
-            }
-        }
+    """Patient data model for heart disease risk prediction"""
+    age: int = Field(..., ge=1, le=120, description="Age in years")
+    sex: int = Field(..., ge=0, le=1, description="Sex (0=female, 1=male)")
+    cp: int = Field(..., ge=0, le=3, description="Chest pain type (0-3)")
+    trestbps: int = Field(..., ge=50, le=250, description="Resting blood pressure")
+    chol: int = Field(..., ge=100, le=600, description="Cholesterol level")
+    fbs: int = Field(..., ge=0, le=1, description="Fasting blood sugar > 120 mg/dl")
+    restecg: int = Field(..., ge=0, le=2, description="Resting ECG results (0-2)")
+    thalach: int = Field(..., ge=50, le=250, description="Maximum heart rate achieved")
+    exang: int = Field(..., ge=0, le=1, description="Exercise induced angina")
+    oldpeak: float = Field(..., ge=0, le=10, description="ST depression induced by exercise")
+    slope: int = Field(..., ge=0, le=2, description="Slope of peak exercise ST segment")
+    ca: int = Field(..., ge=0, le=4, description="Number of major vessels colored by fluoroscopy")
+    thal: int = Field(..., ge=0, le=3, description="Thalassemia type")
 
 class BatchPredictionInput(BaseModel):
     data: List[PredictionInput]
 
 class PredictionOutput(BaseModel):
-    prediction: int
-    probability: float
-    risk_level: str
+    prediction: int = Field(..., description="Binary prediction (0=no risk, 1=risk)")
+    probability: float = Field(..., description="Probability of heart disease (0-1)")
+    risk_level: str = Field(..., description="Risk level: Low, Medium, High")
 
 class BatchPredictionOutput(BaseModel):
     predictions: List[PredictionOutput]
