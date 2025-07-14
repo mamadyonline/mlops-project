@@ -1,0 +1,10 @@
+boto3
+mlflow
+xgboost
+scikit-learn
+numpy==1.26.4
+pandas
+ruff
+pytest
+optuna
+evidently
