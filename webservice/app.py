@@ -17,9 +17,12 @@ model = None
 async def lifespan(app: FastAPI):
     """Load model on startup"""
     global model
+    model_location: str = "local"  # or "local"
     try:
-        # Load model from S3 on startup
-        model = load_model_from_s3()
+        if model_location == "S3":
+            model = load_model_from_s3()
+        elif model_location == "local":
+            model = joblib.load("data/model.pkl")
         print("✓ Model loaded successfully")
         yield
     except Exception as e:
@@ -102,6 +105,12 @@ class BatchPredictionOutput(BaseModel):
 async def root():
     """Health check endpoint"""
     return {"message": "Heart Disease Prediction API is running"}
+
+
+@app.get("/favicon.ico")
+async def favicon():
+    """Favicon endpoint"""
+    return {"message": "No favicon to load. All good !"}
 
 
 @app.get("/health")

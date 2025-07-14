@@ -12,16 +12,16 @@ def test_health_check():
         response = requests.get(f"{API_BASE_URL}/health")
         if response.status_code == 200:
             data = response.json()
-            print("✓ Health Check:")
+            print("Health Check:")
             print(f"  Status: {data['status']}")
             print(f"  Model Loaded: {data['model_loaded']}")
             return True
         else:
-            print(f"❌ Health check failed: {response.status_code}")
+            print(f"Health check failed: {response.status_code}")
             print(f"Error: {response.text}")
             return False
     except Exception as e:
-        print(f"❌ Health check error: {e}")
+        print(f"Health check error: {e}")
         return False
 
 
@@ -31,14 +31,14 @@ def test_root_endpoint():
         response = requests.get(f"{API_BASE_URL}/")
         if response.status_code == 200:
             data = response.json()
-            print("✓ Root Endpoint:")
+            print("Root Endpoint:")
             print(f"  Message: {data['message']}")
             return True
         else:
-            print(f"❌ Root endpoint failed: {response.status_code}")
+            print(f"Root endpoint failed: {response.status_code}")
             return False
     except Exception as e:
-        print(f"❌ Root endpoint error: {e}")
+        print(f"Root endpoint error: {e}")
         return False
 
 
@@ -53,7 +53,7 @@ def make_prediction(patient_data):
 
         if response.status_code == 200:
             result = response.json()
-            print("✓ Prediction Result:")
+            print("Prediction Result:")
             print(f"  Risk Level: {result['risk_level']}")
             print(f"  Risk Probability: {result['probability']:.3f}")
             print(
@@ -61,11 +61,11 @@ def make_prediction(patient_data):
             )
             return result
         else:
-            print(f"❌ Prediction failed: {response.status_code}")
+            print(f"Prediction failed: {response.status_code}")
             print(f"Error: {response.text}")
             return None
     except Exception as e:
-        print(f"❌ Prediction error: {e}")
+        print(f"Prediction error: {e}")
         return None
 
 
@@ -81,7 +81,7 @@ def make_batch_prediction(patients_data):
 
         if response.status_code == 200:
             result = response.json()
-            print("✓ Batch Prediction Results:")
+            print("Batch Prediction Results:")
             for i, prediction in enumerate(result["predictions"]):
                 print(f"  Patient {i + 1}:")
                 print(f"    Risk Level: {prediction['risk_level']}")
@@ -91,11 +91,11 @@ def make_batch_prediction(patients_data):
                 )
             return result
         else:
-            print(f"❌ Batch prediction failed: {response.status_code}")
+            print(f"Batch prediction failed: {response.status_code}")
             print(f"Error: {response.text}")
             return None
     except Exception as e:
-        print(f"❌ Batch prediction error: {e}")
+        print(f"Batch prediction error: {e}")
         return None
 
 
@@ -105,7 +105,7 @@ def get_model_info():
         response = requests.get(f"{API_BASE_URL}/model/info")
         if response.status_code == 200:
             data = response.json()
-            print("✓ Model Information:")
+            print("Model Information:")
             print(f"  Model Type: {data['model_type']}")
             print(f"  Number of Features: {data['n_features']}")
             if isinstance(data["features"], list):
@@ -114,17 +114,17 @@ def get_model_info():
                 print(f"  Features: {data['features']}")
             return data
         else:
-            print(f"❌ Model info failed: {response.status_code}")
+            print(f"Model info failed: {response.status_code}")
             print(f"Error: {response.text}")
             return None
     except Exception as e:
-        print(f"❌ Model info error: {e}")
+        print(f"Model info error: {e}")
         return None
 
 
 def main():
     """Main function to test the API"""
-    print("🔍 Testing Heart Disease Risk Prediction API\n")
+    print("Testing Heart Disease Risk Prediction API\n")
 
     # Test root endpoint
     print("=" * 50)
@@ -133,7 +133,7 @@ def main():
     # Test health check
     print("\n" + "=" * 50)
     if not test_health_check():
-        print("❌ API is not healthy, exiting...")
+        print("API is not healthy, exiting...")
         return
 
     # Get model info
@@ -142,7 +142,7 @@ def main():
 
     # Example patient data for testing
     print("\n" + "=" * 50)
-    print("🧪 Testing with sample patient data:")
+    print("Testing with sample patient data:")
 
     # Low risk patient example
     low_risk_patient = {
@@ -161,7 +161,7 @@ def main():
         "thal": 2.0,
     }
 
-    print("\n📊 Low Risk Patient Profile:")
+    print("\nLow Risk Patient Profile:")
     print(json.dumps(low_risk_patient, indent=2))
     make_prediction(low_risk_patient)
 
@@ -182,20 +182,20 @@ def main():
         "thal": 3.0,
     }
 
-    print("\n📊 High Risk Patient Profile:")
+    print("\nHigh Risk Patient Profile:")
     print(json.dumps(high_risk_patient, indent=2))
     make_prediction(high_risk_patient)
 
     # Test batch prediction
     print("\n" + "=" * 50)
-    print("🔄 Testing batch prediction:")
+    print("Testing batch prediction:")
 
     batch_patients = [low_risk_patient, high_risk_patient]
     make_batch_prediction(batch_patients)
 
     # Test with the example from your API docs
     print("\n" + "=" * 50)
-    print("📋 Testing with API example data:")
+    print("Testing with API example data:")
 
     example_patient = {
         "age": 63.0,
@@ -213,13 +213,13 @@ def main():
         "thal": 1.0,
     }
 
-    print("\n📊 Example Patient Profile:")
+    print("\nExample Patient Profile:")
     print(json.dumps(example_patient, indent=2))
     make_prediction(example_patient)
 
     # Test with invalid data
     print("\n" + "=" * 50)
-    print("🚨 Testing with invalid data:")
+    print("Testing with invalid data:")
 
     invalid_patient = {
         "age": "invalid",  # Invalid type
@@ -240,12 +240,12 @@ def main():
     make_prediction(invalid_patient)
 
     print("\n" + "=" * 50)
-    print("✅ API testing completed!")
+    print("API testing completed!")
 
 
 def interactive_prediction():
     """Interactive prediction function"""
-    print("\n🎯 Interactive Prediction Mode")
+    print("\nInteractive Prediction Mode")
     print("Enter patient data (or 'quit' to exit):")
 
     while True:
@@ -284,20 +284,20 @@ def interactive_prediction():
                 "thal": float(thal),
             }
 
-            print("\n🔍 Making prediction...")
+            print("\nMaking prediction...")
             result = make_prediction(patient_data)
 
             if result:
-                print(f"\n🎯 RESULT: {result['risk_level']} risk of heart disease")
-                print(f"📊 Probability: {result['probability']:.1%}")
+                print(f"\nRESULT: {result['risk_level']} risk of heart disease")
+                print(f"Probability: {result['probability']:.1%}")
 
         except ValueError:
-            print("❌ Invalid input. Please enter numeric values.")
+            print("Invalid input. Please enter numeric values.")
         except KeyboardInterrupt:
-            print("\n👋 Goodbye!")
+            print("\nGoodbye!")
             break
         except Exception as e:
-            print(f"❌ Error: {e}")
+            print(f"Error: {e}")
 
 
 if __name__ == "__main__":
