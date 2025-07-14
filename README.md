@@ -28,6 +28,13 @@ We will use the [UCI heart disease dataset](https://archive.ics.uci.edu/dataset/
 
 ## Usage
 
+### Dependencies
+Install the dependencies from `requirements.txt` (This is the full library versions I ended up with. You can install otherwise the minimal dependencies in `requirements.in` and sort out the others on your way). For example with uv:
+
+```bash
+uv pip install -r requirements.txt
+```
+
 ### Model deployment
 
 The easiest way to use the model is through the web service app. The folder `webservice` contains two files `app.py` and `client_example.py`. You can test it by following the steps below:
