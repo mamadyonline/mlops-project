@@ -27,6 +27,17 @@ We will use the [UCI heart disease dataset](https://archive.ics.uci.edu/dataset/
   * Check screenshots in `images` folder
 
 ## Usage
+To use/test the code, first download the project locally:
+
+```bash
+git clone git@github.com:mamadyonline/mlops-project.git
+```
+
+Then, use `uv` or any other virtual environment management tool to create a venv and all the dependencies.
+
+```bash
+uv venv --python 3.9
+```
 
 ### Dependencies
 Install the dependencies from `requirements.txt` (This is the full library versions I ended up with. You can install otherwise the minimal dependencies in `requirements.in` and sort out the others on your way). For example with uv:
