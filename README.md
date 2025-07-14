@@ -74,7 +74,18 @@ You can install apache airflow by doing the following command:
 ```bash
 uv pip install "apache-airflow[celery]==3.0.2" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.0.2/constraints-3.9.txt"
 ```
-Afterwards, you can launch it from the project root directory and check on `localhost:8080` to see the dags. Another way is to test specific tasks from each dag. For example, you can do:
+Afterwards, you will need to specify the dags directory (absolute). For example you can do:
+
+```bash
+export AIRFLOW_HOME=~/Desktop/mlops-project/airflow
+```
+Then you can launch airflow from the project root directory and check on `localhost:8080` to see the dags. 
+
+```bash
+airflow standalone
+```
+
+Another way is to test specific tasks from each dag. For example, you can do:
 
 ```bash
 airflow tasks test heart_disease_batch_deployment generate_predictions 2025-07-10
