@@ -80,12 +80,14 @@ Note that all the training, monitoring, pipeline orchestration were done with AW
 
 ### Testing the ML pipeline orchestration
 
+Note that all of this was done with AWS setup. So you will need to have pre-configured the three main services (AWS rds, ec2, s3) and set the environment variables `AWS_PROFILE` and `MY_AWS_EC2_SERVER`.
+
 You can install apache airflow by doing the following command:
 
 ```bash
 uv pip install "apache-airflow[celery]==3.0.2" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.0.2/constraints-3.9.txt"
 ```
-Afterwards, you will need to specify the dags directory (absolute). For example you can do:
+Afterwards, you will need to specify the dags directory (absolute path). For example you can do:
 
 ```bash
 export AIRFLOW_HOME=~/Desktop/mlops-project/airflow
