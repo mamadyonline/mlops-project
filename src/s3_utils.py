@@ -16,7 +16,7 @@ def get_s3_client():
             session = boto3.Session(profile_name=aws_profile)
             s3_client = session.client("s3")
         else:
-            # Use default credentials (IAM role, environment variables, etc.)
+            # Use default aws credentials 
             s3_client = boto3.client("s3")
 
         return s3_client
@@ -47,7 +47,6 @@ def upload_file_to_s3(local_path: str, bucket: str, key: str) -> bool:
 
         s3_client = get_s3_client()
 
-        # Upload file
         s3_client.upload_file(local_path, bucket, key)
         logger.info(f"Successfully uploaded {local_path} to s3://{bucket}/{key}")
         return True
@@ -77,7 +76,6 @@ def download_file_from_s3(bucket: str, key: str, local_path: str) -> bool:
 
         s3_client = get_s3_client()
 
-        # Check if object exists
         try:
             s3_client.head_object(Bucket=bucket, Key=key)
         except ClientError as e:
@@ -87,7 +85,6 @@ def download_file_from_s3(bucket: str, key: str, local_path: str) -> bool:
             else:
                 raise
 
-        # Download file
         s3_client.download_file(bucket, key, local_path)
         logger.info(f"Successfully downloaded s3://{bucket}/{key} to {local_path}")
         return True

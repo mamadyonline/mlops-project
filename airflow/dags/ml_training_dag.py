@@ -43,14 +43,12 @@ def load_and_split_data(project_root_path):
             data_path = tmp_file.name
             joblib.dump((X_train, X_val, X_test, y_train, y_val, y_test), data_path)
 
-            # Upload to S3
             upload_file_to_s3(
                 local_path=data_path,
                 bucket="mlflow-project-artifacts-remote",
                 key="pipeline_artifacts/data.pkl",
             )
 
-        # Clean up temporary file
         os.unlink(data_path)
 
         print("Data loaded and uploaded successfully")
@@ -72,14 +70,12 @@ def optimize_model_task(project_root_path):
         from src.airflow_utils import add_project_root_to_path
 
         project_root = add_project_root_to_path()
-        # Add to Python path
         if str(project_root) not in sys.path:
             sys.path.insert(0, str(project_root))
         from src.model import optimize_model
         from src.s3_utils import download_file_from_s3, upload_file_to_s3
 
         print("Local imports successful")
-        # Use temporary files
         with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as data_tmp:
             data_path = data_tmp.name
 
@@ -87,23 +83,18 @@ def optimize_model_task(project_root_path):
             params_path = params_tmp.name
 
         try:
-            # Download data from S3
             download_file_from_s3(
                 bucket="mlflow-project-artifacts-remote",
                 key="pipeline_artifacts/data.pkl",
                 local_path=data_path,
             )
 
-            # Load data - Fix: correct unpacking
             X_train, X_val, X_test, y_train, y_val, y_test = joblib.load(data_path)
 
-            # Optimize model
             best_params = optimize_model(X_train, X_val, y_train, y_val)
 
-            # Save parameters
             joblib.dump(best_params, params_path)
 
-            # Upload parameters to S3
             upload_file_to_s3(
                 local_path=params_path,
                 bucket="mlflow-project-artifacts-remote",
@@ -114,7 +105,6 @@ def optimize_model_task(project_root_path):
             return "success"
 
         finally:
-            # Clean up temporary files
             if os.path.exists(data_path):
                 os.unlink(data_path)
             if os.path.exists(params_path):
@@ -136,7 +126,6 @@ def train_and_log_model(project_root_path):
         from src.airflow_utils import add_project_root_to_path
 
         project_root = add_project_root_to_path()
-        # Add to Python path
         if str(project_root) not in sys.path:
             sys.path.insert(0, str(project_root))
         import mlflow
@@ -145,7 +134,6 @@ def train_and_log_model(project_root_path):
         from src.s3_utils import download_file_from_s3, upload_file_to_s3
 
         print("Local imports successful")
-        # Use temporary files
         with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as data_tmp:
             data_path = data_tmp.name
 
@@ -156,7 +144,6 @@ def train_and_log_model(project_root_path):
             model_path = model_tmp.name
 
         try:
-            # Download artifacts from S3
             download_file_from_s3(
                 bucket="mlflow-project-artifacts-remote",
                 key="pipeline_artifacts/data.pkl",
@@ -169,11 +156,9 @@ def train_and_log_model(project_root_path):
                 local_path=params_path,
             )
 
-            # Load data and parameters - Fix: correct unpacking
             X_train, X_val, X_test, y_train, y_val, y_test = joblib.load(data_path)
             best_params = joblib.load(params_path)
 
-            # Set up MLflow
             aws_profile = os.getenv("MY_AWS_PROFILE")
             if aws_profile:
                 os.environ["AWS_PROFILE"] = aws_profile
@@ -188,12 +173,9 @@ def train_and_log_model(project_root_path):
 
             mlflow.set_experiment("heart-disease-experiment")
 
-            # Train model
             trained_model = train_model(X_train, X_test, y_train, y_test, best_params)
 
-            # Save model
             joblib.dump(trained_model, model_path)
-            # Upload model to S3
             upload_file_to_s3(
                 local_path=model_path,
                 bucket="mlflow-project-artifacts-remote",
