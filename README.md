@@ -17,6 +17,7 @@ We will use the [UCI heart disease dataset](https://archive.ics.uci.edu/dataset/
 ## Tech stack
 * uv for dependency management
 * xgboost for classification model
+* optuna for hyperparameter optimization
 * mlflow for model tracking
 * apache airflow for model orchestration
 * evidently for model monitoring
@@ -103,3 +104,38 @@ Another way is to test specific tasks from each dag. For example, you can do:
 ```bash
 airflow tasks test heart_disease_batch_deployment generate_predictions 2025-07-10
 ```
+
+## Images
+
+Since, it may be hard to run all of the steps without doing some modifications, below is a structure walkthrough the results with images. For each of the main step, I list down the corresponding images:
+
+### Global
+*  Pipeline orchestration with AIRFLOW homepage (running locally): `images/airflow_homepage.png`
+*  Model tracking server with MLFlow homepage (running on an AWS EC2 server): `images/mlflow_web_ui.png`
+*  Model tracking database with MLFlow homepage (running on an AWS RDS db): `images/aws_rds_mlflow_db.png`
+*  
+
+### Model tracking
+* Model tracking artifacts (stored in AWS s3): `images/pipeline_artifacts.png`, `images/aws_s3_mlflow_artifacts.png`
+* Model experimentation (stored in AWS s3): `images/mlflow_xp_1.png`, `images/pipeline_artifacts.png`,
+
+### Model deployment
+* Model deployment artifacts (stored in AWS s3): `images/deployment_artifacts.png`
+
+### Model monitoring
+* Model monitoring reports (stored in AWS s3): `images/monitoring_reports.png`
+
+### Pipeline orchestration
+* Training
+  * ![Training Dag structure](/images/ml_training_dag_structure.png "Training dag structure")
+  * Global view: `images/ml_training_pipeline_airflow.png`
+  * Data load stage: `images/ml_training_pipeline_load_data_airflow.png`
+  * Hyperparameter optimization: `images/ml_training_pipeline_optimize_airflow.png`
+  * Model training: `images/ml_training_pipeline_train_airflow.png`
+* Deployment
+  * ![Batch Dag structure](/images/ml_batch_dag_structure.png "Batch deployment dag structure")
+  * Global view: `images/ml_batch_deployment_pipeline_airflow.png`
+  * Data load stage: `images/ml_batch_load_airflow.png`
+  * Predictions: `images/ml_batch_predictions_airflow.png`
+  * Performance metrics: `images/ml_batch_metrics_airflow.png`
+  * Monitoring: `images/ml_batch_monitoring_airflow.png`
