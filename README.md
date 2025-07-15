@@ -113,9 +113,9 @@ Since, it may be hard to run all of the steps without doing some modifications, 
 *  Pipeline orchestration with AIRFLOW homepage (running locally): `images/airflow_homepage.png`
 *  Model tracking server with MLFlow homepage (running on an AWS EC2 server): `images/mlflow_web_ui.png`
 *  Model tracking database with MLFlow homepage (running on an AWS RDS db): `images/aws_rds_mlflow_db.png`
-*  
 
 ### Model tracking
+![MLFlow homepage](images/mlflow_web_ui.png "mlflow web ui homepage")
 * Model tracking artifacts (stored in AWS s3): `images/pipeline_artifacts.png`, `images/aws_s3_mlflow_artifacts.png`
 * Model experimentation (stored in AWS s3): `images/mlflow_xp_1.png`, `images/pipeline_artifacts.png`,
 
@@ -126,6 +126,7 @@ Since, it may be hard to run all of the steps without doing some modifications, 
 * Model monitoring reports (stored in AWS s3): `images/monitoring_reports.png`
 
 ### Pipeline orchestration
+![Airflow homepage](images/airflow_homepage.png "airflow web ui homepage")
 * Training
   * ![Training Dag structure](/images/ml_training_dag_structure.png "Training dag structure")
   * Global view: `images/ml_training_pipeline_airflow.png`
